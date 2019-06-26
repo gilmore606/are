@@ -1,6 +1,6 @@
 package com.dlfsystems.are
 
-interface ARELevel {
+interface AREMap {
 
     fun getMapWidth(): Int
     fun getMapHeight(): Int

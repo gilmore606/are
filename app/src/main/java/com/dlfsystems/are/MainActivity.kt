@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         tileset.initialize(this as Context)
 
         areView.tileset = tileset
-        areView.level = level
+        areView.map = level
         areView.moveCenter(20, 20)
     }
 }

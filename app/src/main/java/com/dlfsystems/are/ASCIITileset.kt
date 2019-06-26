@@ -21,9 +21,9 @@ class ASCIITileset(val tileDefRes: Int, val tileWidth: Int, val tileHeight: Int,
 
     private val tileDefs: ArrayList<TileDef> = ArrayList(0)
     private var texture: Bitmap? = null
-    override val tileSize = Rect().apply {
-        right = tileWidth
-        bottom = tileHeight
+    override val tileSize = Point().apply {
+        x = tileWidth
+        y = tileHeight
     }
 
     override fun initialize(context: Context) {

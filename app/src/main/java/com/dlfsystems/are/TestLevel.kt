@@ -1,6 +1,6 @@
 package com.dlfsystems.are
 
-class TestLevel: ARELevel {
+class TestLevel: AREMap {
 
     override fun getMapWidth() = 100
     override fun getMapHeight() = 100

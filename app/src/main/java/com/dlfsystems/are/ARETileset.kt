@@ -2,6 +2,7 @@ package com.dlfsystems.are
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Point
 import android.graphics.Rect
 
 interface ARETileset {
@@ -12,7 +13,7 @@ interface ARETileset {
 
     fun getAllTextures(): List<Bitmap>
 
-    val tileSize: Rect
+    val tileSize: Point
 
     fun getTile(tileCode: Int): Tile
 
