@@ -1,0 +1,9 @@
+precision medium float;
+
+uniform sampler2D texture;
+varying vec2 outtxposition;
+varying float outlight;
+
+void main() {
+    gl_FragColor = outlight * texture2D(texture, outtxposition);
+}

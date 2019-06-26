@@ -1,0 +1,44 @@
+[
+  {
+    "id": 0,
+    "char": 32,
+    "fgColor": "#00000000",
+    "bgColor": "#FF000000"
+  },
+  {
+    "id": 1,
+    "char": 35,
+    "fgColor": "#FF999999",
+    "bgColor": "#FF333333"
+  },
+  {
+    "id": 2,
+    "char": 43,
+    "fgColor": "#FF009900",
+    "bgColor": "#FF111111"
+  },
+  {
+    "id": 3,
+    "char": 64,
+    "fgColor": "#FFCCCCFF",
+    "bgColor": "#00000000"
+  },
+  {
+    "id": 4,
+    "char": 48,
+    "fgColor": "#FFFFFFFF",
+    "bgColor": "#FFFF2222"
+  },
+  {
+    "id": 5,
+    "char": 72,
+    "fgColor": "#FFFFFF33",
+    "bgColor": "#FF000066"
+  },
+  {
+    "id": 6,
+    "char": 61,
+    "fgColor": "#FF552222",
+    "bgColor": "#FF000000"
+  }
+]
