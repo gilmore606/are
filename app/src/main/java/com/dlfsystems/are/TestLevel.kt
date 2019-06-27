@@ -9,13 +9,15 @@ class TestLevel: AREMap {
         if ((x >= 0) && (x < getMapWidth()) && (y >= 0) && (y < getMapHeight())) {
             if (layer == 0) {
                 return (x + y) % 6
+                //return 1
             }
         }
         return null
     }
 
     override fun getLight(x: Int, y: Int): Float {
-        return (((x+y) % 2) - 1) * 0.5f + 0.5f
+        //return (((x+y) % 4) - 1) * 0.25f + 0.5f
+        return 1f
     }
 
     override fun getLayerCount(): Int {

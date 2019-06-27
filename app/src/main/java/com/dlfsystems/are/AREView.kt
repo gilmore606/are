@@ -37,7 +37,7 @@ class AREView
     var texturesLoaded = false
     var glInitialized = false
 
-    var zoom = 0.5f
+    var zoom = 1.5f
     private val center = PointF()
     private val centerTarget = PointF()
 
@@ -50,6 +50,7 @@ class AREView
     private var glPosition: Int = 0
     private var glTxposition: Int = 0
     private var glLight: Int = 0
+    private var glTexture: Int = 0
     private var glUniformScreenSize: Int = 0
 
     private val glTextureHandle = IntArray(1)
@@ -142,8 +143,10 @@ class AREView
             MotionEvent.ACTION_MOVE -> {
                 val dx = e.x - lastTouch.x
                 val dy = e.y - lastTouch.y
-                center.x -= dx * (1f / tileset!!.tileSize.x) / zoom
-                center.y -= dy * (1f / tileset!!.tileSize.y) / zoom
+                moveCenter(
+                center.x - dx * (1f / tileset!!.tileSize.x) / zoom,
+                center.y - dy * (1f / tileset!!.tileSize.y) / zoom,
+                    false)
             }
         }
         lastTouch.x = e.x
@@ -215,6 +218,8 @@ class AREView
             GLES20.glEnableVertexAttribArray(glTxposition)
             glLight = GLES20.glGetAttribLocation(glProgram, "light")
             GLES20.glEnableVertexAttribArray(glLight)
+            glTexture = GLES20.glGetUniformLocation(glProgram, "texture")
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTexture)
             glUniformScreenSize = GLES20.glGetUniformLocation(glProgram, "screenSize")
 
             Log.e("DEBUG", "shader param handles " + glPosition + " " + glTxposition + " " + glLight + " u " + glUniformScreenSize)
@@ -249,8 +254,8 @@ class AREView
             val tileH = tileset!!.tileSize.y * zoom
             val tilesAcross = (screenSize.x / tileW).toInt() + 2
             val tilesDown = (screenSize.y / tileH).toInt() + 2
-            var offsetX = center.x - center.x.toInt()
-            var offsetY = center.y - center.y.toInt()
+            var offsetX = center.x - center.x.toInt().toFloat()
+            var offsetY = center.y - center.y.toInt().toFloat()
             var upperleftX = center.x.toInt() - tilesAcross / 2
             var upperleftY = center.y.toInt() - tilesDown / 2
 
@@ -263,10 +268,10 @@ class AREView
                         val light = map!!.getLight(mapX, mapY)
                         map!!.getTile(mapX, mapY, layer)?.also { tilecode ->
                             vbo.add(
-                                (dx * tileW + offsetX), (dy * tileH + offsetY),
+                                (dx - offsetX) * tileW, (dy - offsetY) * tileH,
                                 tileW, tileH,
-                                tileset!!.getTileTexX(tilecode).toFloat(), tileset!!.getTileTexY(tilecode).toFloat(),
-                                tileset!!.getTileTexW(tilecode).toFloat(), tileset!!.getTileTexH(tilecode).toFloat(),
+                                tileset!!.getTileTexX(tilecode), tileset!!.getTileTexY(tilecode),
+                                tileset!!.getTileTexW(tilecode), tileset!!.getTileTexH(tilecode),
                                 light
                             )
                         }
@@ -288,7 +293,7 @@ class AREView
                 GLES20.glVertexAttribPointer(glPosition, VBO.DATASIZE_POSITION, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
                 buf.position(VBO.DATASIZE_POSITION)
                 GLES20.glVertexAttribPointer(glTxposition, VBO.DATASIZE_TXPOSITION, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
-                buf.position(VBO.DATASIZE_TXPOSITION)
+                buf.position(VBO.DATASIZE_TXPOSITION + VBO.DATASIZE_POSITION)
                 GLES20.glVertexAttribPointer(glLight, VBO.DATASIZE_LIGHT, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
 
                 GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vbo.tileCount * VBO.VERTS_PER_TILE)

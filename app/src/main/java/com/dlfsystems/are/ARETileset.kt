@@ -7,7 +7,7 @@ import android.graphics.Rect
 
 interface ARETileset {
 
-    class Tile(texture: Bitmap, x: Int, y: Int, width: Int, height: Int)
+    class Tile(texture: Bitmap, x: Float, y: Float, width: Float, height: Float)
 
     fun initialize(context: Context)
 
@@ -18,8 +18,8 @@ interface ARETileset {
     fun getTile(tileCode: Int): Tile
 
     fun getTileTex(tileCode: Int): Bitmap
-    fun getTileTexX(tileCode: Int): Int
-    fun getTileTexY(tileCode: Int): Int
-    fun getTileTexW(tileCode: Int): Int
-    fun getTileTexH(tileCode: Int): Int
+    fun getTileTexX(tileCode: Int): Float
+    fun getTileTexY(tileCode: Int): Float
+    fun getTileTexW(tileCode: Int): Float
+    fun getTileTexH(tileCode: Int): Float
 }

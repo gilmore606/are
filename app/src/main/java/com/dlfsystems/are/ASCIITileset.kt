@@ -13,10 +13,10 @@ class ASCIITileset(val tileDefRes: Int, val tileWidth: Int, val tileHeight: Int,
         val char: Int,
         val fgColor: String,
         val bgColor: String,
-        var texX: Int? = null,
-        var texY: Int? = null,
-        var texW: Int? = null,
-        var texH: Int? = null
+        var texX: Float? = null,
+        var texY: Float? = null,
+        var texW: Float? = null,
+        var texH: Float? = null
     )
 
     private val tileDefs: ArrayList<TileDef> = ArrayList(0)
@@ -46,10 +46,10 @@ class ASCIITileset(val tileDefRes: Int, val tileWidth: Int, val tileHeight: Int,
         val scale = 1f
 
         tileDefs.forEach {
-            it.texX = tileWidth * it.id
-            it.texY = 0
-            it.texW = tileWidth
-            it.texH = tileHeight
+            it.texX = (1f / tileDefs.size) * it.id
+            it.texY = 0f
+            it.texW = 1f / tileDefs.size
+            it.texH = 1f
 
             fgPaint.color = Color.parseColor(it.fgColor)
             bgPaint.color = Color.parseColor(it.bgColor)
