@@ -11,6 +11,8 @@ import android.opengl.GLUtils
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MotionEvent
+import kotlinx.android.synthetic.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
@@ -36,7 +38,7 @@ class AREView
     var texturesLoaded = false
     var glInitialized = false
 
-    var zoom = 1.0
+    var zoom = 1.0f
     private val center = PointF()
     private val centerTarget = PointF()
 
@@ -52,6 +54,8 @@ class AREView
     private var glUniformScreenSize: Int = 0
 
     private val glTextureHandle = IntArray(1)
+
+    private val lastTouch = PointF()
 
     class VBO(maxTiles: Int) {
         companion object {
@@ -132,6 +136,20 @@ class AREView
         screenSize.x = right - left
         screenSize.y = bottom - top
         super.onLayout(changed, left, top, right, bottom)
+    }
+
+    override fun onTouchEvent(e: MotionEvent): Boolean {
+        when (e.action) {
+            MotionEvent.ACTION_MOVE -> {
+                val dx = e.x - lastTouch.x
+                val dy = e.y - lastTouch.y
+                center.x -= dx * (1f / tileset!!.tileSize.x) * zoom.toFloat()
+                center.y -= dy * (1f / tileset!!.tileSize.y) * zoom.toFloat()
+            }
+        }
+        lastTouch.x = e.x
+        lastTouch.y = e.y
+        return true
     }
 
     // public api
@@ -246,8 +264,8 @@ class AREView
                         val light = map!!.getLight(x, y)
                         map!!.getTile(x, y, layer)?.also { tilecode ->
                             vbo.add(
-                                dx * tileW + offsetX, dy * tileH + offsetY,
-                                tileW, tileH,
+                                (dx * tileW + offsetX) * zoom, (dy * tileH + offsetY) * zoom,
+                                tileW * zoom, tileH * zoom,
                                 tileset!!.getTileTexX(tilecode).toFloat(), tileset!!.getTileTexY(tilecode).toFloat(),
                                 tileset!!.getTileTexW(tilecode).toFloat(), tileset!!.getTileTexH(tilecode).toFloat(),
                                 light
