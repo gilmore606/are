@@ -12,7 +12,6 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
-import kotlinx.android.synthetic.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
@@ -38,7 +37,7 @@ class AREView
     var texturesLoaded = false
     var glInitialized = false
 
-    var zoom = 1.0f
+    var zoom = 0.5f
     private val center = PointF()
     private val centerTarget = PointF()
 
@@ -143,8 +142,8 @@ class AREView
             MotionEvent.ACTION_MOVE -> {
                 val dx = e.x - lastTouch.x
                 val dy = e.y - lastTouch.y
-                center.x -= dx * (1f / tileset!!.tileSize.x) * zoom.toFloat()
-                center.y -= dy * (1f / tileset!!.tileSize.y) * zoom.toFloat()
+                center.x -= dx * (1f / tileset!!.tileSize.x) / zoom
+                center.y -= dy * (1f / tileset!!.tileSize.y) / zoom
             }
         }
         lastTouch.x = e.x
@@ -246,10 +245,10 @@ class AREView
             if (layerVBOs.size < 1)
                 allocateVBOs()
 
-            val tileW = tileset!!.tileSize.x.toFloat()
-            val tileH = tileset!!.tileSize.y.toFloat()
-            val tilesAcross = screenSize.x / tileset!!.tileSize.x + 2
-            val tilesDown = screenSize.y / tileset!!.tileSize.y + 2
+            val tileW = tileset!!.tileSize.x * zoom
+            val tileH = tileset!!.tileSize.y * zoom
+            val tilesAcross = (screenSize.x / tileW).toInt() + 2
+            val tilesDown = (screenSize.y / tileH).toInt() + 2
             var offsetX = center.x - center.x.toInt()
             var offsetY = center.y - center.y.toInt()
             var upperleftX = center.x.toInt() - tilesAcross / 2
@@ -259,13 +258,13 @@ class AREView
                 vbo.clear()
                 repeat (tilesDown) { dy ->
                     repeat (tilesAcross) { dx ->
-                        val x = upperleftX + dx
-                        val y = upperleftY + dy
-                        val light = map!!.getLight(x, y)
-                        map!!.getTile(x, y, layer)?.also { tilecode ->
+                        val mapX = upperleftX + dx + 1
+                        val mapY = upperleftY + dy + 1
+                        val light = map!!.getLight(mapX, mapY)
+                        map!!.getTile(mapX, mapY, layer)?.also { tilecode ->
                             vbo.add(
-                                (dx * tileW + offsetX) * zoom, (dy * tileH + offsetY) * zoom,
-                                tileW * zoom, tileH * zoom,
+                                (dx * tileW + offsetX), (dy * tileH + offsetY),
+                                tileW, tileH,
                                 tileset!!.getTileTexX(tilecode).toFloat(), tileset!!.getTileTexY(tilecode).toFloat(),
                                 tileset!!.getTileTexW(tilecode).toFloat(), tileset!!.getTileTexH(tilecode).toFloat(),
                                 light
