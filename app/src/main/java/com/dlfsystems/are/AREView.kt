@@ -63,13 +63,15 @@ class AREView
             const val FLOATS_PER_VERT = DATASIZE_POSITION + DATASIZE_TXPOSITION + DATASIZE_LIGHT
             const val STRIDE = FLOATS_PER_VERT * BYTES_PER_FLOAT
         }
-        private var cursor = 0
+        var vertexCount = 0
+            private set
+
 
         val verts = ByteBuffer.allocateDirect(maxTiles * BYTES_PER_FLOAT * FLOATS_PER_VERT * VERTS_PER_TILE)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer()
 
         fun clear() {
-            cursor = 0
+            vertexCount = 0
             verts.position(0)
         }
 
@@ -111,9 +113,9 @@ class AREView
             addV[28] = ty + th
             addV[29] = light
 
-            verts.position(cursor * addV.size)
+            verts.position(vertexCount * addV.size)
             verts.put(addV)
-            cursor++
+            vertexCount++
         }
     }
 
@@ -202,7 +204,7 @@ class AREView
         fun loadTextures() {
             if (!texturesLoaded && glInitialized) {
                 Log.e("DEBUG", "loadTextures")
-                val bitmap = tileset!!.getAllTextures()[0]
+                val bitmap = tileset!!.getAllTextures()[0] // TODO: load all textures, split up VBOs by texture, etc
                 GLES20.glGenTextures(1, glTextureHandle, 0)
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTextureHandle[0])
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
@@ -264,6 +266,8 @@ class AREView
                 GLES20.glVertexAttribPointer(glTxposition, VBO.DATASIZE_TXPOSITION, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
                 buf.position(VBO.DATASIZE_TXPOSITION)
                 GLES20.glVertexAttribPointer(glLight, VBO.DATASIZE_LIGHT, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
+
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vbo.vertexCount)
             }
         }
     }
