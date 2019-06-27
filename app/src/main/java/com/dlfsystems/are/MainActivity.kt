@@ -19,6 +19,15 @@ class MainActivity : AppCompatActivity() {
 
         areView.tileset = tileset
         areView.map = level
-        areView.moveCenter(20, 20)
+        areView.moveCenter(20f, 20f)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        areView.onPause()
+    }
+    override fun onResume() {
+        super.onResume()
+        areView.onResume()
     }
 }

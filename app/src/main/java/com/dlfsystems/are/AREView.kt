@@ -33,6 +33,8 @@ class AREView
             field = value
             renderer.loadTextures()
         }
+    var texturesLoaded = false
+    var glInitialized = false
 
     var zoom = 1.0
     private val center = PointF()
@@ -47,6 +49,7 @@ class AREView
     private var glPosition: Int = 0
     private var glTxposition: Int = 0
     private var glLight: Int = 0
+    private var glUniformScreenSize: Int = 0
 
     private val glTextureHandle = IntArray(1)
 
@@ -108,7 +111,7 @@ class AREView
             addV[28] = ty + th
             addV[29] = light
 
-            verts.position(cursor * FLOATS_PER_VERT * VERTS_PER_TILE)
+            verts.position(cursor * addV.size)
             verts.put(addV)
             cursor++
         }
@@ -131,9 +134,9 @@ class AREView
 
     // public api
 
-    fun moveCenter(x: Int, y: Int, animate: Boolean = false) {
-        centerTarget.x = x.toFloat()
-        centerTarget.y = y.toFloat()
+    fun moveCenter(x: Float, y: Float, animate: Boolean = false) {
+        centerTarget.x = x
+        centerTarget.y = y
         if (animate) {
 
         } else {
@@ -150,21 +153,29 @@ class AREView
     inner class ARERenderer: Renderer {
 
         override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-            GLES20.glClearColor(0f,0f,0f,1f)
+            Log.e("DEBUG", "onSurfaceCreated")
+            glInitialized = true
+            GLES20.glClearColor(0f,1f,0f,1f)
         }
 
         override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+            Log.e("DEBUG", "onSurfaceChanged")
             GLES20.glViewport(0, 0, width, height)
+            GLES20.glClearColor(1f,1f,0f,1f)
             compileShaders()
+            loadTextures()
+            Log.e("DEBUG", "sending gl screensize " + width + " by " + height)
+            GLES20.glUniform2f(glUniformScreenSize, width.toFloat(), height.toFloat())
         }
 
         override fun onDrawFrame(gl: GL10?) {
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
             buildFaces()
             drawFaces()
         }
 
         private fun compileShaders() {
+            Log.e("DEBUG", "compileShaders")
             glProgram = GLES20.glCreateProgram().also { program ->
                 GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER).also {
                     GLES20.glShaderSource(it, resources.getRawAsString(R.raw.shader_vertex))
@@ -185,15 +196,21 @@ class AREView
             GLES20.glEnableVertexAttribArray(glTxposition)
             glLight = GLES20.glGetAttribLocation(glProgram, "light")
             GLES20.glEnableVertexAttribArray(glLight)
+            glUniformScreenSize = GLES20.glGetUniformLocation(glProgram, "screenSize")
         }
 
         fun loadTextures() {
-            val bitmap = tileset!!.getAllTextures()[0]
-            GLES20.glGenTextures(1, glTextureHandle, 0)
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTextureHandle[0])
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
+            if (!texturesLoaded && glInitialized) {
+                Log.e("DEBUG", "loadTextures")
+                val bitmap = tileset!!.getAllTextures()[0]
+                GLES20.glGenTextures(1, glTextureHandle, 0)
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glTextureHandle[0])
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
+                GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
+
+                texturesLoaded = true
+            }
         }
 
         private fun Resources.getRawAsString(res: Int): String {

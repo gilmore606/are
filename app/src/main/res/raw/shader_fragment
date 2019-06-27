@@ -4,4 +4,5 @@ varying float outlight;
 
 void main() {
     gl_FragColor = outlight * texture2D(texture, outtxposition);
+    gl_FragColor = vec4(outlight, outlight, outlight, outlight);
 }
