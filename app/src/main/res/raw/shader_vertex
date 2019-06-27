@@ -1,13 +1,18 @@
+precision mediump float;
+
 attribute vec2 position;
 attribute vec2 txposition;
 attribute float light;
-varying float outlight;
+
 varying vec2 outtxposition;
+varying float outlight;
+
 uniform vec2 screenSize;
 
 void main() {
-    vec2 screenPos = position * vec2(2.0 / screenSize.x, -2.0 / screenSize.y);
+    vec2 screenPos = position * vec2(2.0 / screenSize.x, -2.0 / screenSize.y) + vec2(-1.0, 1.0);
     gl_Position = vec4(screenPos, 0.0, 1.0);
-    outlight = light;
+
     outtxposition = txposition;
+    outlight = light;
 }

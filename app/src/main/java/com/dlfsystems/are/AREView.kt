@@ -63,7 +63,7 @@ class AREView
             const val FLOATS_PER_VERT = DATASIZE_POSITION + DATASIZE_TXPOSITION + DATASIZE_LIGHT
             const val STRIDE = FLOATS_PER_VERT * BYTES_PER_FLOAT
         }
-        var vertexCount = 0
+        var tileCount = 0
             private set
 
 
@@ -71,7 +71,7 @@ class AREView
                 .order(ByteOrder.nativeOrder()).asFloatBuffer()
 
         fun clear() {
-            vertexCount = 0
+            tileCount = 0
             verts.position(0)
         }
 
@@ -113,9 +113,9 @@ class AREView
             addV[28] = ty + th
             addV[29] = light
 
-            verts.position(vertexCount * addV.size)
+            verts.position(tileCount * addV.size)
             verts.put(addV)
-            vertexCount++
+            tileCount++
         }
     }
 
@@ -163,7 +163,7 @@ class AREView
         override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
             Log.e("DEBUG", "onSurfaceChanged")
             GLES20.glViewport(0, 0, width, height)
-            GLES20.glClearColor(1f,1f,0f,1f)
+            GLES20.glClearColor(0f,0f,0f,1f)
             compileShaders()
             loadTextures()
             Log.e("DEBUG", "sending gl screensize " + width + " by " + height)
@@ -199,6 +199,8 @@ class AREView
             glLight = GLES20.glGetAttribLocation(glProgram, "light")
             GLES20.glEnableVertexAttribArray(glLight)
             glUniformScreenSize = GLES20.glGetUniformLocation(glProgram, "screenSize")
+
+            Log.e("DEBUG", "shader param handles " + glPosition + " " + glTxposition + " " + glLight + " u " + glUniformScreenSize)
         }
 
         fun loadTextures() {
@@ -232,18 +234,23 @@ class AREView
             val tilesDown = screenSize.y / tileset!!.tileSize.y + 2
             var offsetX = center.x - center.x.toInt()
             var offsetY = center.y - center.y.toInt()
+            var upperleftX = center.x.toInt() - tilesAcross / 2
+            var upperleftY = center.y.toInt() - tilesDown / 2
 
             layerVBOs.forEachIndexed { layer, vbo ->
                 vbo.clear()
-                repeat (tilesDown) { y ->
-                    repeat (tilesAcross) { x ->
+                repeat (tilesDown) { dy ->
+                    repeat (tilesAcross) { dx ->
+                        val x = upperleftX + dx
+                        val y = upperleftY + dy
+                        val light = map!!.getLight(x, y)
                         map!!.getTile(x, y, layer)?.also { tilecode ->
                             vbo.add(
-                                x * tileW + offsetX, y * tileH + offsetY,
+                                dx * tileW + offsetX, dy * tileH + offsetY,
                                 tileW, tileH,
                                 tileset!!.getTileTexX(tilecode).toFloat(), tileset!!.getTileTexY(tilecode).toFloat(),
                                 tileset!!.getTileTexW(tilecode).toFloat(), tileset!!.getTileTexH(tilecode).toFloat(),
-                                1f
+                                light
                             )
                         }
                     }
@@ -267,7 +274,7 @@ class AREView
                 buf.position(VBO.DATASIZE_TXPOSITION)
                 GLES20.glVertexAttribPointer(glLight, VBO.DATASIZE_LIGHT, GLES20.GL_FLOAT, false, VBO.STRIDE, buf)
 
-                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vbo.vertexCount)
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vbo.tileCount * VBO.VERTS_PER_TILE)
             }
         }
     }

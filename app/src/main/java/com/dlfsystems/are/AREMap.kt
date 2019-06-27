@@ -6,5 +6,5 @@ interface AREMap {
     fun getMapHeight(): Int
     fun getLayerCount(): Int
     fun getTile(x: Int, y: Int, layer: Int = 0): Int?
-
+    fun getLight(x: Int, y: Int): Float
 }
