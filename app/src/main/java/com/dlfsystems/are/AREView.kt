@@ -12,6 +12,8 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import androidx.core.view.ScaleGestureDetectorCompat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
@@ -22,7 +24,7 @@ class AREView
         context: Context,
         attrs: AttributeSet? = null,
         defStyle: Int = 0
-    ) : GLSurfaceView(context, attrs) {
+    ) : GLSurfaceView(context, attrs), ScaleGestureDetector.OnScaleGestureListener {
 
     val maxTileWidth = 50
     val maxTileHeight = 100
@@ -56,6 +58,7 @@ class AREView
     private val glTextureHandle = IntArray(1)
 
     private val lastTouch = PointF()
+    private val scaleGestureDetector = ScaleGestureDetector(context, this)
 
     class VBO(maxTiles: Int) {
         companion object {
@@ -139,20 +142,37 @@ class AREView
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
+        scaleGestureDetector.onTouchEvent(e)
         when (e.action) {
             MotionEvent.ACTION_MOVE -> {
-                val dx = e.x - lastTouch.x
-                val dy = e.y - lastTouch.y
-                moveCenter(
-                center.x - dx * (1f / tileset!!.tileSize.x) / zoom,
-                center.y - dy * (1f / tileset!!.tileSize.y) / zoom,
-                    false)
+                if (!scaleGestureDetector.isInProgress) {
+                    val dx = e.x - lastTouch.x
+                    val dy = e.y - lastTouch.y
+                    moveCenter(
+                        center.x - dx * (1f / tileset!!.tileSize.x) / zoom,
+                        center.y - dy * (1f / tileset!!.tileSize.y) / zoom,
+                        false
+                    )
+                }
             }
         }
         lastTouch.x = e.x
         lastTouch.y = e.y
         return true
     }
+
+    override fun onScale(detector: ScaleGestureDetector?): Boolean {
+        detector?.also {
+            val scale = it.scaleFactor
+            Log.e("TOUCH", "scalefactor " + scale)
+            zoom *= scale
+        }
+        return true
+    }
+
+    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean { return true }
+
+    override fun onScaleEnd(detector: ScaleGestureDetector?) { }
 
     // public api
 
