@@ -17,6 +17,8 @@ class MainActivity : AppCompatActivity() {
 
         tileset.initialize(this as Context)
 
+        textureView.setImageBitmap(tileset.getAllTextures()[0])
+
         areView.tileset = tileset
         areView.map = level
         areView.moveCenter(3f, 5f)

@@ -36,10 +36,14 @@ class ASCIITileset(val tileDefRes: Int, val tileWidth: Int, val tileHeight: Int,
             ))
         rawTileDefs.forEach { tileDefs.add(it.id, it) }
 
-        val bgPaint = Paint()
-        val fgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        fgPaint.typeface = font
-        fgPaint.textSize = fontSize
+        val bgPaint = Paint().apply {
+            style = Paint.Style.FILL
+        }
+        val fgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            typeface = font
+            textSize = fontSize
+        }
 
         texture = Bitmap.createBitmap(tileWidth * rawTileDefs.size, tileHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(texture)
@@ -53,10 +57,11 @@ class ASCIITileset(val tileDefRes: Int, val tileWidth: Int, val tileHeight: Int,
 
             fgPaint.color = Color.parseColor(it.fgColor)
             bgPaint.color = Color.parseColor(it.bgColor)
-            canvas.drawRect(it.texX!! * scale, it.texY!! * scale, (it.texW!! + it.texX!!) * scale, (it.texH!! + it.texY!!)* scale, bgPaint)
+            Log.e("TILES", "draw rect " + it.texX + ", " + it.texY)
+            canvas.drawRect(it.texX!! * canvas.width, it.texY!! * canvas.height, (it.texW!! + it.texX!!) * canvas.width, (it.texH!! + it.texY!!) * canvas.height, bgPaint)
             val str = String(Character.toChars(it.char))
             val baseline = (it.texH!! * 2) / 3
-            canvas.drawText(str, it.texX!!.toFloat(), baseline.toFloat(), fgPaint)
+            canvas.drawText(str, it.texX!! * canvas.width, (it.texY!! + baseline) * canvas.height, fgPaint)
         }
     }
 

@@ -14,6 +14,5 @@ void main() {
     gl_Position = vec4(screenPos, 0.0, 1.0);
 
     outtxposition = txposition;
-    outtxposition.y = 1.0 - outtxposition.y;
     outlight = light;
 }
