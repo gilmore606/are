@@ -1,17 +1,31 @@
 package com.dlfsystems.are
 
-class TestLevel: AREMap {
+class TestLevel(text: List<String>): AREMap {
 
-    override fun getMapWidth() = 83
-    override fun getMapHeight() = 83
+    val tiles = ArrayList<ArrayList<Int>>(0)
+
+    override fun getMapHeight() = tiles.size
+    override fun getMapWidth() = if (tiles.size < 1) 0 else tiles[0].size
+
+    init {
+        text.forEach { line ->
+            val row = ArrayList<Int>(0)
+            line.forEach { c ->
+                row.add(when (c) {
+                    'X' -> 1
+                    '.' -> 2
+                    'a' -> 3
+                    else -> 0
+                })
+            }
+            tiles.add(row)
+        }
+    }
 
     override fun getTile(x: Int, y: Int, layer: Int): Int? {
-        if ((x >= 0) && (x < getMapWidth()) && (y >= 0) && (y < getMapHeight())) {
-            if (layer == 0) {
-                return (x + y) % 6
-                //return 1
-            }
-        }
+        try {
+            return tiles[y][x]
+        } catch (e: Exception) {}
         return null
     }
 

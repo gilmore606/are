@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     val tileset = ASCIITileset(R.raw.ascii_tiles, 96, 96, Typeface.DEFAULT_BOLD, 72f)
-    val level = TestLevel()
+    lateinit var level: AREMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         textureView.setImageBitmap(tileset.getAllTextures()[0])
 
+        level = TestLevel(resources.getRawAsLines(R.raw.test_map))
         areView.tileset = tileset
         areView.map = level
         areView.moveCenter(3f, 5f)

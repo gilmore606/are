@@ -259,10 +259,6 @@ class AREView
             }
         }
 
-        private fun Resources.getRawAsString(res: Int): String {
-            return openRawResource(res).bufferedReader().readLines().joinToString("")
-        }
-
         private fun buildFaces() {
             if ((tileset == null) || (map == null) || screenSize.x < 1)
                 return
